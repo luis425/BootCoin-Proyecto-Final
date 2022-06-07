@@ -1,0 +1,12 @@
+package com.bootcamp.BankCoin.model;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Getter
+@Setter
+@Builder
+public class BootCoin {
+
+	
+}

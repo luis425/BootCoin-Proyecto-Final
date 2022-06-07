@@ -1,0 +1,31 @@
+
+Å
+java:S1192k"Define a constant instead of duplicating this literal "AccountcoinDestination enviado, no dispone las monedas para realizar la venta." 3 times.(ıÒ“8ëÊÍè“0HâRCRITICALZ
+CODE_SMELL
+n	java:S1254"<This block of commented-out lines of code should be removed.(»ˆìÍ8¿ıôç“0HRMAJORZ
+CODE_SMELL
+o
+java:S2583Œ"CChange this condition so that it does not always evaluate to "true"(†ói8¿ıôç“0HÖRMAJORZBUG
+o	java:S125‰"<This block of commented-out lines of code should be removed.(»ˆìÍ8“©á“0H²RMAJORZ
+CODE_SMELL
+Ï
+java:S1192È"’Define a constant instead of duplicating this literal "Debe enviar atributo accountDestinationcoin para depositar las monedas compradas." 3 times.(¾ïï…üÿÿÿÿ8ÅÍôë“0Hî+RCRITICALZ
+CODE_SMELL
+n
+java:S25839"CChange this condition so that it does not always evaluate to "true"(†ói8“©á“0H¯RMAJORZBUG
+
+java:S1192g"FDefine a constant instead of duplicating this literal "Venta" 4 times.(ö·ÜÖøÿÿÿÿ8ëÊÍè“0HìRCRITICALZ
+CODE_SMELL
+”
+java:S1192a"^Define a constant instead of duplicating this literal "con una cuenta BootCoinPurse." 8 times.(«ûÚ8ëÊÍè“0HØRCRITICALZ
+CODE_SMELL
+s	java:S125B"<This block of commented-out lines of code should be removed.(¶Ãˆâøÿÿÿÿ8æŞá“0HçRMAJORZ
+CODE_SMELL
+±
+java:S1192`"{Define a constant instead of duplicating this literal "AccountcoinDestination enviado, no tiene ninguna relacion " 4 times.(¿ºğ8ëÊÍè“0HİRCRITICALZ
+CODE_SMELL
+²
+java:S1192Õ"{Define a constant instead of duplicating this literal "AccountDestinationcoin enviado, no tiene ninguna relacion " 4 times.(ß½ÂÊ8ı½Òë“0HÙ*RCRITICALZ
+CODE_SMELL
+n	java:S125F"<This block of commented-out lines of code should be removed.(½–8ˆşàá“0HæRMAJORZ
+CODE_SMELL

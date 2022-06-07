@@ -1,0 +1,38 @@
+package com.bootcamp.BankCoin.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bootcamp.BankCoin.api.client.BankAccountApiClient;
+import com.bootcamp.BankCoin.model.BootCoin;
+import com.bootcamp.BankCoin.response.Bank;
+import com.bootcamp.BankCoin.response.DebitCardResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service 
+public class BootCoinServiceImpl implements BootCoinService {
+	
+	@Autowired
+	BankAccountApiClient bankAccountApiClient; 
+	
+	
+	@Override
+	public String processCreateBootCoinPurse(BootCoin transaction) throws InterruptedException {
+
+
+		List<Bank> BankAsociado = new ArrayList<>();
+		
+		if(transaction.getNumberDebitCard() != null ) {
+			BankAsociado = this.bankAccountApiClient.getDebitCardbyCustomerNumberCreditCard(transaction.getNumberDebitCard());	
+		}
+		
+		return null;
+	
+	}
+
+}

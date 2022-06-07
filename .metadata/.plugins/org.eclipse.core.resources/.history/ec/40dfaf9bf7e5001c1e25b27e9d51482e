@@ -1,0 +1,6 @@
+package com.bootcamp.BankCoin.repository;
+
+@Repository
+public interface BankCoinRepository {
+
+}

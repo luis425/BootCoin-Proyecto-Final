@@ -1,0 +1,84 @@
+package com.bootcamp.BankCoin.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bootcamp.BankCoin.api.client.BankAccountApiClient;
+import com.bootcamp.BankCoin.model.BootCoin;
+import com.bootcamp.BankCoin.model.BootCoinPurse;
+import com.bootcamp.BankCoin.repository.BankCoinRepository;
+import com.bootcamp.BankCoin.response.Bank;
+import com.bootcamp.BankCoin.response.CustomerResponse;
+import com.bootcamp.BankCoin.response.DebitCardResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service 
+public class BootCoinServiceImpl implements BootCoinService {
+	
+	@Autowired
+	BankAccountApiClient bankAccountApiClient; 
+	
+	@Autowired
+	BankCoinRepository bankCoinRepository;
+	
+	@Override
+	public String processCreateBootCoinPurse(BootCoin transaction) throws InterruptedException {
+
+
+		List<CustomerResponse> BankAsociado = new ArrayList<>();
+		 
+		BankAsociado = this.bankAccountApiClient.getCustomerbyDni(transaction.getNumberDocument());	
+		
+		// Al no encontrar el numero de cuenta 
+		
+					if(BankAsociado.isEmpty()) {
+
+						// Crea un nueva cuenta Yanki
+						
+						yanki.setYunkiAccountstatus(true); 
+						
+						BootCoinPurse bootcoinpurse = this.registerDto(transaction);
+						
+						this.bankCoinRepository.save(bootcoinpurse).subscribe();
+						
+						log.info("Yanki Register -->" + bootcoinpurse);
+						
+						return "Proceso Satisfactorio Nueva Cuenta Yanki sin relacion a un BankAccount";
+
+					} else {
+
+						 yanki.setAmount(listDebitCardAsociado.get(0).getBankAccounts().getAvailableBalanceAccount());
+						 yanki.setDocumentType("D");
+						 yanki.setNumberDocument(listDebitCardAsociado.get(0).getBankAccounts().getCustomer().getDniCustomer());
+						 yanki.setYunkiAccountstatus(true);
+						 YankiAccount yankiAccountModel = this.registerDto(yanki);
+						 
+						 this.yankiRepository.save(yankiAccountModel).subscribe();
+						  
+						return "Proceso Satisfactorio Nueva Cuenta Yanki relacionado a un BankAccount";
+					}
+		
+	}
+	
+	public BootCoinPurse registerDto(BootCoin transaction) {
+
+		BootCoinPurse bootcoinpurse = new BootCoinPurse(); 
+		
+		bootcoinpurse.setId(yanki.getId());
+		bootcoinpurse.setYunkiAccountstatus(yanki.isYunkiAccountstatus());
+		bootcoinpurse.setAmount(yanki.getAmount()); 
+		bootcoinpurse.setDocumentType(yanki.getDocumentType());
+		bootcoinpurse.setNumberDocument(yanki.getNumberDocument());
+		bootcoinpurse.setNumberDebitCard(yanki.getNumberDebitCard());
+		bootcoinpurse.setPhoneNumber(yanki.getPhoneNumber());
+		bootcoinpurse.setImei(yanki.getImei());
+		bootcoinpurse.setEmail(yanki.getEmail()); 
+		return bootcoinpurse;
+	}
+
+}

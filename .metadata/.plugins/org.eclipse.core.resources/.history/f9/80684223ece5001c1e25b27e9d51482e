@@ -1,0 +1,9 @@
+package com.bootcamp.BankCoin.service;
+
+public interface BootCoinService {
+	
+	// Crear monedero BootCoin 
+	
+	String processCreateBootCoinPurse(Yanki transaction) throws InterruptedException; 
+
+}

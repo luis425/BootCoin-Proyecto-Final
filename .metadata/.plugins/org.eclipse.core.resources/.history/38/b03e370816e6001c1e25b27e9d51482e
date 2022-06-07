@@ -1,0 +1,11 @@
+package com.bootcamp.BankCoin.model;
+
+public class BankTasa {
+	
+	@Id
+	private Integer id;
+	 
+	private String description;
+	
+}
+

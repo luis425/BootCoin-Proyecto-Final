@@ -1,0 +1,38 @@
+package com.bootcamp.BankCoin.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Document(collection = "RequestOperationBootCoin")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RequestOperation {
+	
+	@Id
+	private String id; 
+	
+	private String codeOperation;
+	
+	private Double amount;
+	
+	private Double conversiontasa;
+	  
+	private boolean statusoperation;   
+	 
+	private String requestorigen;
+	
+	private String requestdestination;
+	
+	private String PayType;
+	
+}
+

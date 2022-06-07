@@ -1,0 +1,5 @@
+package com.bootcamp.BankCoin.config;
+
+public class CustomerApiProperties {
+	private String baseUrl;
+	}

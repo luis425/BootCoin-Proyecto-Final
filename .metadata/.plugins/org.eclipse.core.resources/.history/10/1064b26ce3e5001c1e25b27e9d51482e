@@ -1,0 +1,7 @@
+package com.bootcamp.BankCoin.consumer;
+
+@Component
+@Slf4j
+public class KafkaConsumer {
+
+}

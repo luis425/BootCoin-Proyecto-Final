@@ -1,0 +1,17 @@
+package com.bootcamp.BankCoin.web.expose;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class BankCoinController {
+	
+	@Autowired
+	private KafkaProducer kafkaProducer;
+
+	@PostMapping("/customer/yanki")
+	public ResponseEntity<String> requestYanki(@RequestBody String yanki) {
+		kafkaProducer.publishMessage(yanki);
+		return ResponseEntity.ok(yanki);
+	}
+
+}

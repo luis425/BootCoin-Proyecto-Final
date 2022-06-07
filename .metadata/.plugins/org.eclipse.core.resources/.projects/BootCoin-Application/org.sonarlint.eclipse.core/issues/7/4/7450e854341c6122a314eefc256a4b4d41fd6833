@@ -1,0 +1,13 @@
+
+f
+java:S1444"3Make this "public static OBJECT_MAPPER" field final(в╫Е²8ъ╡┼ь⌠0HЁRMINORZ
+CODE_SMELL
+▄
+java:S1104"YMake OBJECT_MAPPER a static final constant or non-public and provide accessors if needed.(в╫Е²8ъ╡┼ь⌠0H╡RMINORZ
+CODE_SMELL
+▀
+java:S3008"XRename this field "OBJECT_MAPPER" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(в╫Е²8ъ╡┼ь⌠0H╢RMINORZ
+CODE_SMELL
+m
+java:S1118":Add a private constructor to hide the implicit public one.(┤всч8ъ╡┼ь⌠0H╣RMAJORZ
+CODE_SMELL

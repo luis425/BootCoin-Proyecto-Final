@@ -1,0 +1,22 @@
+package com.bootcamp.BankCoin.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bootcamp.BankCoin.model.BankTasa;
+import com.bootcamp.BankCoin.model.RequestOperation;
+import com.bootcamp.BankCoin.repository.BankTasaRepository;
+import com.bootcamp.BankCoin.repository.RequestOperationRepository;
+
+import reactor.core.publisher.Mono;
+
+@Service
+public class BankTasaService {
+
+	@Autowired
+	BankTasaRepository bankTasaRepository;
+	
+	public Mono<BankTasa> createRequestOperation(BankTasa bankTasa) {
+		return bankTasaRepository.save(bankTasa);
+	}
+}

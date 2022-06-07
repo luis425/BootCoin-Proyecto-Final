@@ -1,0 +1,11 @@
+package com.bootcamp.BankCoin.service;
+
+import com.bootcamp.BankCoin.model.BootCoin;
+
+public interface BootCoinService {
+	
+	// Crear monedero BootCoin 
+	
+	String processCreateBootCoinPurse(BootCoin transaction) throws InterruptedException; 
+
+}

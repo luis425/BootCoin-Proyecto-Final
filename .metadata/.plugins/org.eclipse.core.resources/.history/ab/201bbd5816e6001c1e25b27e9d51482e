@@ -1,0 +1,5 @@
+package com.bootcamp.BankCoin.repository;
+
+public interface BankTasaRepository {
+
+}

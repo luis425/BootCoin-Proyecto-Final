@@ -1,0 +1,11 @@
+package com.bootcamp.BankCoin.response;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
+@ToString
+public class Bank {
+
+}

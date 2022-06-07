@@ -1,0 +1,19 @@
+
+k
+java:S1612]"8Replace this lambda with method reference 'result::add'.(·ÑÂñ8ŸìœÛ“0HåRMINORZ
+CODE_SMELL
+p
+java:S16123"8Replace this lambda with method reference 'result::add'.(ù©™ûşÿÿÿÿ8¸³Û“0H¢RMINORZ
+CODE_SMELL
+…
+java:S1192i"ODefine a constant instead of duplicating this literal "Ver lista --->" 4 times.(“ì¿¼8Û›ˆç“0HàRCRITICALZ
+CODE_SMELL
+k
+java:S1612A"8Replace this lambda with method reference 'result::add'.(·ÑÂñ8–Õœá“0HşRMINORZ
+CODE_SMELL
+k
+java:S1612O"8Replace this lambda with method reference 'result::add'.(·ÑÂñ8„öşÚ“0H×RMINORZ
+CODE_SMELL
+‹
+java:S11926"PDefine a constant instead of duplicating this literal "Assurance list " 4 times.(³Û¶ûÿÿÿÿ8¦© Û“0HûRCRITICALZ
+CODE_SMELL

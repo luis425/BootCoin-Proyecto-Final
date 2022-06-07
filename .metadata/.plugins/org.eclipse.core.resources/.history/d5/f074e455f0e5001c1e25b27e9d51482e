@@ -1,0 +1,9 @@
+package com.bootcamp.BankCoin.config;
+
+@Configuration
+@Setter
+@Getter
+@ConfigurationProperties(prefix = "bank-account-api")
+public class BankAccountApiProperties {
+
+}

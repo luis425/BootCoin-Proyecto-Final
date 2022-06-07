@@ -1,0 +1,5 @@
+package com.bootcamp.BankCoin.config;
+
+public  final class Util {
+	public static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+}

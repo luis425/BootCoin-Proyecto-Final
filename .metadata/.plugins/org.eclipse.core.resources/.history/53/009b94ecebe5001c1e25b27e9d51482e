@@ -1,0 +1,7 @@
+package com.bootcamp.BankCoin.service;
+
+public interface BootCoinService {
+	
+	String processCreateYankiAccount(Yanki transaction) throws InterruptedException; 
+
+}

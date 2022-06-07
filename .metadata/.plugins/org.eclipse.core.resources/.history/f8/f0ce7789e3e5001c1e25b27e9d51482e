@@ -1,0 +1,20 @@
+package com.bootcamp.BankCoin.consumer;
+
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Component
+@Slf4j
+public class KafkaConsumer {
+	
+	@Autowired
+	private YankiService yankiService;
+
+	@KafkaListener(topics = "${kafka.subscribed-topic.name}")
+	public void consumeEvent(String message) throws JsonProcessingException, InterruptedException {
+		Yanki yunki = Util.OBJECT_MAPPER.readValue(message, Yanki.class);
+		log.info("Message received " + message);
+		yankiService.processCreateYankiAccount(yunki);
+	}
+}

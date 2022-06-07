@@ -1,0 +1,6 @@
+package com.bootcamp.BankCoin.web.expose;
+
+@RestController
+public class BankCoinController {
+
+}

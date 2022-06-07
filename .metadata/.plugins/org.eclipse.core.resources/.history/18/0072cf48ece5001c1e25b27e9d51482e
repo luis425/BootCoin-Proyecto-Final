@@ -1,0 +1,15 @@
+package com.bootcamp.BankCoin.service;
+
+import com.bootcamp.BankCoin.model.BootCoin;
+
+@Slf4j
+@Service 
+public class BootCoinServiceImpl implements BootCoinService {
+
+	@Override
+	public String processCreateBootCoinPurse(BootCoin transaction) throws InterruptedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

@@ -1,0 +1,14 @@
+package com.bootcamp.BankCoin.config;
+
+import org.springframework.context.annotation.Configuration;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Configuration
+@Setter
+@Getter
+@ConfigurationProperties(prefix = "bank-account-api")
+public class BankAccountApiProperties {
+
+}

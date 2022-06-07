@@ -1,0 +1,7 @@
+package com.bootcamp.BankCoin.response;
+
+public class CustomerType {
+	private Integer id;
+	 
+	private String description;
+}

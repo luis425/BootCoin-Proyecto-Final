@@ -1,0 +1,6 @@
+package com.bootcamp.BankCoin.config;
+
+@Configuration
+public class WebClientConfig {
+
+}

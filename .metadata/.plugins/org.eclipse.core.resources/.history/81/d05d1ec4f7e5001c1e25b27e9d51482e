@@ -1,0 +1,15 @@
+package com.bootcamp.BankCoin.model;
+
+public class BootCoinPurse {
+	
+	private String id;  
+	private Double bootcoinamount;
+	private String documentType;
+	private String numberDocument;
+	private String phoneNumber; 
+	private String email; 
+	private boolean bootcoinstatus;   
+	private String bankrelation;
+	
+}
+

@@ -1,0 +1,5 @@
+package com.bootcamp.BankCoin.service;
+
+public class BootCoinServiceImpl implements BootCoinServicec {
+
+}

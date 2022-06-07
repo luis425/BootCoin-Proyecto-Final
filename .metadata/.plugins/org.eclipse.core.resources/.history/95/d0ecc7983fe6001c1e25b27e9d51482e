@@ -1,0 +1,502 @@
+package com.bootcamp.BankCoin.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.bootcamp.BankCoin.api.client.BankAccountApiClient;
+import com.bootcamp.BankCoin.model.BankTasa;
+import com.bootcamp.BankCoin.model.BootCoinPurse;
+import com.bootcamp.BankCoin.model.RequestOperation;
+import com.bootcamp.BankCoin.model.YankiAccount;
+import com.bootcamp.BankCoin.repository.BankCoinRepository;
+import com.bootcamp.BankCoin.response.BankAccountResponse;
+import com.bootcamp.BankCoin.service.BankTasaService;
+import com.bootcamp.BankCoin.service.BootCoinService;
+import com.bootcamp.BankCoin.service.RequestOperationService;
+
+import lombok.extern.slf4j.Slf4j; 
+import reactor.core.publisher.Mono;
+
+@Slf4j
+@RestController
+@RequestMapping("/requestOperation")
+public class RequestOperationController {
+
+	@Autowired
+	BankAccountApiClient bankAccountApiClient; 
+	
+	@Autowired
+	BankTasaService bankTasaService;
+	
+	@Autowired
+	BootCoinService bootCoinService;
+	
+	@Autowired
+	BankCoinRepository bankCoinRepository;
+	
+	@Autowired
+	RequestOperationService requestOperationService;
+	
+	@PostMapping
+	public Mono<RequestOperation> createRequestOperation(@RequestBody RequestOperation requestOperation) {
+
+		//boolean validationvalue = this.validationRegisterRequest(yankiTransfer);  
+		boolean validationvalue = true;
+		
+		String codigoBank = "cb1";
+		
+		if (validationvalue) {
+
+			try {
+
+				// Condicion Mode de Pago  
+				
+				
+				if(requestOperation.getPayMode().equals("Yanki")) {
+					
+					//List<YankiAccount> yankiAccountorigen = this.bankAccountApiClient.getYankiAccountbyPhoneNumber(requestOperation.getRequestorigen()); 
+					
+					YankiAccount yankiAccountorigen = this.bankAccountApiClient.comunicationWebClientYankibyphonenumber(requestOperation.getRequestorigen()); 
+					
+					//List<YankiAccount> yankiAccountDestination = this.bankAccountApiClient.getYankiAccountbyPhoneNumber(requestOperation.getRequestorigen()); 
+					
+					YankiAccount yankiAccountdestination = this.bankAccountApiClient.comunicationWebClientYankibyphonenumber(requestOperation.getRequestdestination()); 
+					
+					var bootcoinpurse = this.bootCoinService.getBootCoinPurseByIdUnique(requestOperation.getAccountcoinDestination());
+
+					List<BootCoinPurse> listBootCoinPurse = new ArrayList<>();
+
+					bootcoinpurse.collectList().subscribe(listBootCoinPurse::addAll);
+					
+					long temporizador = (5 * 1000);
+
+					Thread.sleep(temporizador);
+					
+					if(yankiAccountorigen == null) {
+						return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Cuenta Yanki Origen, no existe."));
+					}
+
+					if (yankiAccountdestination == null) {
+
+						return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Cuenta Yanki Destinatario, no existe."));
+
+					}
+					
+					if (listBootCoinPurse.isEmpty()) {
+
+						return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no tiene ninguna relacion "
+								+ "con una cuenta BootCoinPurse."));
+
+					}
+					
+					// Condicion Tipo de Pago 
+					
+					if(requestOperation.getPayType().equals("Venta")) {
+							
+						if( +listBootCoinPurse.get(0).getBootcoinamount() < requestOperation.getAmountcoin()) {
+							
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no dispone las monedas para realizar la venta."));
+						}
+						 
+						var banktasa = this.bankTasaService.bankTasabycodebank(codigoBank);
+
+						List<BankTasa> listasa = new ArrayList<>();
+
+						banktasa.collectList().subscribe(listasa::addAll); 
+
+						Thread.sleep(temporizador);
+						
+						requestOperation.setCodeOperation(null);
+						requestOperation.setConversiontasa(listasa.get(0).getTasaventa()); 
+						requestOperation.setStatusoperation(false);
+						
+						Double recibodecoin = Double.valueOf(requestOperation.getAmountcoin()) * listasa.get(0).getTasaventa();
+						requestOperation.setAmountconvert(recibodecoin);
+						
+						return this.requestOperationService.createRequestOperation(requestOperation);
+						
+					}else {
+						
+						// Compra
+						
+			
+						var banktasa = this.bankTasaService.bankTasabycodebank(codigoBank);
+
+						List<BankTasa> listasa = new ArrayList<>();
+
+						banktasa.collectList().subscribe(listasa::addAll); 
+
+						Thread.sleep(temporizador);
+						
+						requestOperation.setCodeOperation(null);
+						requestOperation.setConversiontasa(listasa.get(0).getTasacompra()); 
+						requestOperation.setStatusoperation(false);
+						
+						Double recibodecoin = Double.valueOf(requestOperation.getAmountcoin()) * listasa.get(0).getTasaventa();
+						requestOperation.setAmountconvert(recibodecoin);
+						
+
+						if( +yankiAccountorigen.getAmount() < recibodecoin) {
+							
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Su cuenta Yanki no dispone del Saldo suficiente para realizar la compra."));
+						}
+						
+						return this.requestOperationService.createRequestOperation(requestOperation);  
+						
+					}
+
+					
+				}else {
+					
+					BankAccountResponse bankAccountorigen = this.bankAccountApiClient.comunicationWebClientBankAccountbyNumberAccount(requestOperation.getRequestorigen()); 
+					
+					BankAccountResponse bankAccountdestination = this.bankAccountApiClient.comunicationWebClientBankAccountbyNumberAccount(requestOperation.getRequestdestination()); 
+					
+					var bootcoinpurse = this.bootCoinService.getBootCoinPurseByIdUnique(requestOperation.getAccountcoinDestination());
+
+					List<BootCoinPurse> listBootCoinPurse = new ArrayList<>();
+
+					bootcoinpurse.collectList().subscribe(listBootCoinPurse::addAll);
+					
+					long temporizador = (5 * 1000);
+
+					Thread.sleep(temporizador);
+					
+					if(bankAccountorigen == null) {
+						return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Cuenta Bancario Origen, no existe."));
+					}
+
+					if (bankAccountdestination == null) {
+
+						return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Cuenta Bancario Destinatario, no existe."));
+
+					}
+					
+					if (listBootCoinPurse.isEmpty()) {
+
+						return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no tiene ninguna relacion "
+								+ "con una cuenta BootCoinPurse."));
+
+					}
+					
+					// Condicion Tipo de Pago 
+					
+					if(requestOperation.getPayType().equals("Venta")) {
+							
+						if( +listBootCoinPurse.get(0).getBootcoinamount() < requestOperation.getAmountcoin()) {
+							
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no dispone las monedas para realizar la venta."));
+						}
+						 
+						var banktasa = this.bankTasaService.bankTasabycodebank(codigoBank);
+
+						List<BankTasa> listasa = new ArrayList<>();
+
+						banktasa.collectList().subscribe(listasa::addAll); 
+
+						Thread.sleep(temporizador);
+						
+						requestOperation.setCodeOperation(null);
+						requestOperation.setConversiontasa(listasa.get(0).getTasaventa()); 
+						requestOperation.setStatusoperation(false);
+						
+						Double recibodecoin = Double.valueOf(requestOperation.getAmountcoin()) * listasa.get(0).getTasaventa();
+						requestOperation.setAmountconvert(recibodecoin);
+						
+						return this.requestOperationService.createRequestOperation(requestOperation);
+						
+					}else {
+						
+						// Compra
+						
+			
+						var banktasa = this.bankTasaService.bankTasabycodebank(codigoBank);
+
+						List<BankTasa> listasa = new ArrayList<>();
+
+						banktasa.collectList().subscribe(listasa::addAll); 
+
+						Thread.sleep(temporizador);
+						
+						requestOperation.setCodeOperation(null);
+						requestOperation.setConversiontasa(listasa.get(0).getTasacompra()); 
+						requestOperation.setStatusoperation(false);
+						
+						Double recibodecoin = Double.valueOf(requestOperation.getAmountcoin()) * listasa.get(0).getTasaventa();
+						requestOperation.setAmountconvert(recibodecoin);
+						
+
+						if( +bankAccountorigen.getAvailableBalanceAccount() < recibodecoin) {
+							
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Su cuenta Yanki no dispone del Saldo suficiente para realizar la compra."));
+						}
+						
+						return this.requestOperationService.createRequestOperation(requestOperation);  
+						
+					}
+
+					
+				} 	
+						
+			} catch (InterruptedException e) {
+				log.info(e.toString());
+				Thread.currentThread().interrupt();
+				return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()));
+			}
+
+
+		} else {
+			return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "v"));
+		}
+	}
+	
+	@PostMapping("/AcceptRequest")
+	public Mono<RequestOperation> acceptRequestOperation(@RequestBody RequestOperation requestOperation) {
+
+		//boolean validationvalue = this.validationRegisterRequest(yankiTransfer);  
+		boolean validationvalue = true; 
+		
+		if (validationvalue) {
+
+			try {
+
+				var requestOperacion = this.requestOperationService.getRequestOperationById(requestOperation.getId());
+
+				List<RequestOperation> listrequestOperacion = new ArrayList<>();
+
+				requestOperacion.collectList().subscribe(listrequestOperacion::addAll);
+				
+				long temporizador = (5 * 1000);
+
+				Thread.sleep(temporizador);
+				
+				if(listrequestOperacion.isEmpty()) {
+					
+					return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"El ID enviado, no corresponde a ninguna Solicitud."));
+				
+				}
+				
+				//Setear valor 
+				
+				this.validardorCustomer(requestOperation, listrequestOperacion);
+				 
+				if(listrequestOperacion.get(0).getPayMode().equals("Yanki")) { 
+					
+					YankiAccount yankiAccountorigen = this.bankAccountApiClient.comunicationWebClientYankibyphonenumber(requestOperation.getRequestorigen()); 
+					 
+					YankiAccount yankiAccountdestination = this.bankAccountApiClient.comunicationWebClientYankibyphonenumber(requestOperation.getRequestdestination()); 
+					
+					var bootcoinpurse = this.bootCoinService.getBootCoinPurseByIdUnique(requestOperation.getAccountcoinDestination());
+
+					List<BootCoinPurse> listBootCoinPurse = new ArrayList<>();
+
+					bootcoinpurse.collectList().subscribe(listBootCoinPurse::addAll); 
+
+					Thread.sleep(temporizador);
+					 
+					if (listBootCoinPurse.isEmpty()) {
+
+						return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no tiene ninguna relacion "
+								+ "con una cuenta BootCoinPurse."));
+
+					}
+					
+					// Condicion Tipo de Pago 
+					
+					if(requestOperation.getPayType().equals("Venta")) {
+							
+						if( +listBootCoinPurse.get(0).getBootcoinamount() < requestOperation.getAmountcoin()) {
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no dispone las monedas para realizar la venta."));
+						}
+						
+						// Validar si el destinatario tiene el dinero para pagar 
+						if(yankiAccountdestination.getAmount() < requestOperation.getAmountconvert()) {
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Cuenta Yanki del destinatario no tiene el saldo suficiente para pagar"));
+						}
+						
+						// Enviar atributo accountDestinationcoin para depositar las monedas
+						if(requestOperation.getAccountDestinationcoin() == null || requestOperation.getAccountDestinationcoin().equals("")) {
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Debe enviar atributo accountDestinationcoin para depositar las monedas compradas."));
+						}
+						
+						var bootcoinpursedestinationcoin = this.bootCoinService.getBootCoinPurseByIdUnique(requestOperation.getAccountDestinationcoin());
+
+						List<BootCoinPurse> listBootCoinPursedestcoin = new ArrayList<>();
+
+						bootcoinpursedestinationcoin.collectList().subscribe(listBootCoinPursedestcoin::addAll); 
+
+						Thread.sleep(temporizador);
+						
+						if (listBootCoinPursedestcoin.isEmpty()) {
+
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountDestinationcoin enviado, no tiene ninguna relacion "
+									+ "con una cuenta BootCoinPurse."));
+
+						}
+						 
+						// Depositar pago en la cuenta Origen
+						
+						yankiAccountorigen.setAmount(yankiAccountorigen.getAmount() + requestOperation.getAmountconvert());
+						
+						this.bankAccountApiClient.comunicationWebClientYankiAccount(yankiAccountorigen); 
+						
+						// Quitar a la cuenta destinatario lo que debe pagar 
+						
+						yankiAccountdestination.setAmount(yankiAccountdestination.getAmount() - requestOperation.getAmountconvert());
+						
+						this.bankAccountApiClient.comunicationWebClientYankiAccount(yankiAccountdestination); 
+						
+						// Quitar las monedas a AccountcoinDestination 
+						
+						listBootCoinPurse.get(0).setBootcoinamount(listBootCoinPurse.get(0).getBootcoinamount() - requestOperation.getAmountcoin());
+						
+						this.bankCoinRepository.save(listBootCoinPurse.get(0)).subscribe();
+						
+						// Dar la monedas a una cuenta BootCoin
+						
+						listBootCoinPursedestcoin.get(0).setBootcoinamount(listBootCoinPursedestcoin.get(0).getBootcoinamount() + requestOperation.getAmountcoin());
+						
+						this.bankCoinRepository.save(listBootCoinPursedestcoin.get(0)).subscribe();
+						
+						requestOperation.setCodeOperation(UUID.randomUUID().toString()); 
+						requestOperation.setStatusoperation(true); 
+						
+						
+						
+						return this.requestOperationService.createRequestOperation(requestOperation);
+						
+					}else { 
+						 
+						// Compra
+						
+						// Enviar atributo accountDestinationcoin para quitar las monedas
+						
+						if(requestOperation.getAccountDestinationcoin() == null || requestOperation.getAccountDestinationcoin().equals("")) {
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Debe enviar atributo accountDestinationcoin para depositar las monedas compradas."));
+						}
+						
+						var bootcoinpursedestinationcoin = this.bootCoinService.getBootCoinPurseByIdUnique(requestOperation.getAccountDestinationcoin());
+
+						List<BootCoinPurse> listBootCoinPursedestcoin = new ArrayList<>();
+
+						bootcoinpursedestinationcoin.collectList().subscribe(listBootCoinPursedestcoin::addAll); 
+
+						Thread.sleep(temporizador);
+						
+						if (listBootCoinPursedestcoin.isEmpty()) {
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountDestinationcoin enviado, no tiene ninguna relacion "
+									+ "con una cuenta BootCoinPurse."));
+						}
+						
+						
+						// Depositar pago en la cuenta Origen
+						
+						yankiAccountorigen.setAmount(yankiAccountorigen.getAmount() + requestOperation.getAmountconvert());
+						
+						this.bankAccountApiClient.comunicationWebClientYankiAccount(yankiAccountorigen); 
+						
+						// Quitar a la cuenta destinatario lo que debe pagar 
+						
+						yankiAccountdestination.setAmount(yankiAccountdestination.getAmount() - requestOperation.getAmountconvert());
+						
+						this.bankAccountApiClient.comunicationWebClientYankiAccount(yankiAccountdestination); 
+						
+						// Quitar las monedas a AccountcoinDestination 
+						
+						listBootCoinPurse.get(0).setBootcoinamount(listBootCoinPurse.get(0).getBootcoinamount() - requestOperation.getAmountcoin());
+						
+						this.bankCoinRepository.save(listBootCoinPurse.get(0)).subscribe();
+						
+						// Dar la monedas a una cuenta BootCoin
+						
+						listBootCoinPursedestcoin.get(0).setBootcoinamount(listBootCoinPursedestcoin.get(0).getBootcoinamount() + requestOperation.getAmountcoin());
+						
+						this.bankCoinRepository.save(listBootCoinPursedestcoin.get(0)).subscribe();
+						
+						requestOperation.setCodeOperation(UUID.randomUUID().toString()); 
+						requestOperation.setStatusoperation(true);
+												
+						return this.requestOperationService.createRequestOperation(requestOperation);  
+						
+					}
+
+					
+				} else {
+					
+					BankAccountResponse bankAccountorigen = this.bankAccountApiClient.comunicationWebClientBankAccountbyNumberAccount(requestOperation.getRequestorigen()); 
+					
+					BankAccountResponse bankAccountdestination = this.bankAccountApiClient.comunicationWebClientBankAccountbyNumberAccount(requestOperation.getRequestdestination()); 
+					
+
+					
+					// Condicion Tipo de Pago 
+					
+					if(requestOperation.getPayType().equals("Venta")) {
+							
+						//if( +listBootCoinPurse.get(0).getBootcoinamount() < requestOperation.getAmountcoin()) {
+							
+							//return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no dispone las monedas para realizar la venta."));
+						//}
+						 
+						
+						requestOperation.setCodeOperation(null);
+						requestOperation.setStatusoperation(false);
+						
+						return this.requestOperationService.createRequestOperation(requestOperation);
+						
+					}else {
+						
+						// Compra
+						
+						requestOperation.setCodeOperation(null);
+						requestOperation.setStatusoperation(false);
+						
+						//if( +bankAccountorigen.getAvailableBalanceAccount() < recibodecoin) {
+							//return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"Su cuenta Yanki no dispone del Saldo suficiente para realizar la compra."));
+						//}
+						
+						return this.requestOperationService.createRequestOperation(requestOperation);  
+						
+					}
+					
+				} 
+						
+			} catch (InterruptedException e) {
+				log.info(e.toString());
+				Thread.currentThread().interrupt();
+				return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()));
+			}
+
+
+		} else {
+			return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "v"));
+		}
+	}
+	
+	public RequestOperation validardorCustomer(RequestOperation requestOperation, List<RequestOperation> listrequestOperacion ) {
+
+		requestOperation.setId(listrequestOperacion.get(0).getId());
+		requestOperation.setAmountcoin(listrequestOperacion.get(0).getAmountcoin());
+		requestOperation.setConversiontasa(listrequestOperacion.get(0).getConversiontasa());
+		requestOperation.setAmountconvert(listrequestOperacion.get(0).getAmountconvert());
+		requestOperation.setStatusoperation(listrequestOperacion.get(0).isStatusoperation());
+		requestOperation.setRequestorigen(listrequestOperacion.get(0).getRequestorigen());
+		requestOperation.setRequestdestination(listrequestOperacion.get(0).getRequestdestination());
+		requestOperation.setAccountcoinDestination(listrequestOperacion.get(0).getAccountcoinDestination());
+		requestOperation.setPayType(listrequestOperacion.get(0).getPayType());
+		requestOperation.setPayMode(listrequestOperacion.get(0).getPayMode());
+
+		return requestOperation;
+	}
+	
+	
+}

@@ -1,0 +1,31 @@
+package com.bootcamp.BankCoin.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class BankAccountResponse {
+
+	private String id;
+	  
+	private String numberAccount;
+	 
+	private int keyAccount;
+	 
+	private double availableBalanceAccount;
+	   
+	@JsonFormat(pattern="dd-MM-yyyy" , timezone="GMT-05:00")
+	private Date dateLastBankAccount;
+	
+	// Estado 
+	private boolean statusAccount; 
+	
+	private CustomerResponse customer;
+}

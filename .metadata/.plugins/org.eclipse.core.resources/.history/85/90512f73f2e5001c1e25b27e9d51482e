@@ -1,0 +1,5 @@
+package com.bootcamp.BankCoin.response;
+
+public class BankAccounts {
+
+}

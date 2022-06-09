@@ -46,15 +46,16 @@ public class RequestOperationController {
 	@Autowired
 	RequestOperationService requestOperationService;
 	
+	private String messageBadRequest;
+	
 	@PostMapping
 	public Mono<RequestOperation> createRequestOperation(@RequestBody RequestOperation requestOperation) {
 
-		//boolean validationvalue = this.validationRegisterRequest(yankiTransfer);  
-		boolean validationvalue = true;
+		boolean validatorrequestOperation = this.validationRequestOperation(requestOperation);   
 		
 		String codigoBank = "cb1";
 		
-		if (validationvalue) {
+		if (validatorrequestOperation) {
 
 			try {
 
@@ -104,7 +105,7 @@ public class RequestOperationController {
 							
 						if( +listBootCoinPurse.get(0).getBootcoinamount() < requestOperation.getAmountcoin()) {
 							
-							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,"AccountcoinDestination enviado, no dispone las monedas para realizar la venta."));
+							return Mono.error(new ResponseStatusException(HttpStatus.PRECONDITION_FAILED," AccountcoinDestination enviado, no dispone las monedas para realizar la venta."));
 						}
 						 
 						var banktasa = this.bankTasaService.bankTasabycodebank(codigoBank);
@@ -255,18 +256,13 @@ public class RequestOperationController {
 
 
 		} else {
-			return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "v"));
+			return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, messageBadRequest));
 		}
 	}
 	
 	@PostMapping("/AcceptRequest")
 	public Mono<RequestOperation> acceptRequestOperation(@RequestBody RequestOperation requestOperation) {
-
-		//boolean validationvalue = this.validationRegisterRequest(yankiTransfer);  
-		boolean validationvalue = true; 
-		
-		if (validationvalue) {
-
+ 
 			try {
 
 				var requestOperacion = this.requestOperationService.getRequestOperationById(requestOperation.getId());
@@ -548,10 +544,6 @@ public class RequestOperationController {
 				return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()));
 			}
 
-
-		} else {
-			return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "v"));
-		}
 	}
 	
 	public RequestOperation validardorCustomer(RequestOperation requestOperation, List<RequestOperation> listrequestOperacion ) {
@@ -570,5 +562,45 @@ public class RequestOperationController {
 		return requestOperation;
 	}
 	
+	public boolean validationRequestOperation(RequestOperation requestOperation) {
+
+		boolean validatorrequestOperation;
+
+		if (requestOperation.getId() != null) {
+			validatorrequestOperation = false;
+			messageBadRequest = "id es autogenerado, no se puede enviar en el Request";
+		} else if (requestOperation.getCodeOperation() != null) {
+			validatorrequestOperation = false;
+			messageBadRequest = "codeOperation es autogenerado, no se puede enviar en el Request";
+		} else if (requestOperation.getAmountcoin() == null) {
+			validatorrequestOperation = false;
+			messageBadRequest = "amountcoin no puede ser vacio";
+		} else if (requestOperation.getAmountconvert() != null) {
+			validatorrequestOperation = false;
+			messageBadRequest = "amountconvert, no se puede enviar en el Request";
+		} else if (requestOperation.getRequestorigen() == null) {
+			validatorrequestOperation = false;
+			messageBadRequest = "requestorigen no puede ser vacio";
+		}else if (requestOperation.getRequestdestination() == null) {
+			validatorrequestOperation = false;
+			messageBadRequest = "requestdestination no puede ser vacio";
+		}else if (requestOperation.getAccountDestinationcoin() == null) {
+			validatorrequestOperation = false;
+			messageBadRequest = "accountcoinDestination no puede ser vacio";
+		}else if ( !requestOperation.getPayType().equals("Venta") ||  !requestOperation.getPayType().equals("Compra")) {
+			validatorrequestOperation = false;
+			messageBadRequest = "El atributo payType solo debe tener el valor Venta y Compra";
+		}else if ( !requestOperation.getPayMode().equals("Yanki") ||  !requestOperation.getPayMode().equals("Transferencia")) {
+			validatorrequestOperation = false;
+			messageBadRequest = "El atributo payMode solo debe tener el valor Yanki y Transferencia";
+		} else {
+			validatorrequestOperation = true;
+		}
+
+		return validatorrequestOperation;
+	}
+	
+	
+
 	
 }
